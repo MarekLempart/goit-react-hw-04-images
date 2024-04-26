@@ -23,6 +23,7 @@ const Searchbar = ({ handleSubmit }) => {
       toast.error('Enter text for search.');
       return;
     }
+    console.log('Query to search:', search); // Dodajemy console.log dla sprawdzenia wartości search
     handleSubmit(search);
     resetForm();
   };
