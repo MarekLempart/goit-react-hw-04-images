@@ -3,131 +3,97 @@
 import { Button } from 'components/Button/Button';
 import { Loader } from 'components/Loader/Loader';
 import { useEffect, useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { getSearchImages } from './Api/getSearch';
 import { ImageGallery } from './ImageGallery/ImageGallery';
-// import { Modal } from './Modal/Modal'; // Moda
 import Modal from './Modal/Modal';
-import { Searchbar } from './Searchbar/Searchbar';
+import Searchbar from './Searchbar/Searchbar';
 
-export const App = () => {
-  const [inputValue, setInputValue] = useState('');
-  const [query, setQuery] = useState('');
-  const [page, setPage] = useState(0);
+const App = () => {
+  const [search, setSearch] = useState('');
   const [images, setImages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [lastPage, setLastPage] = useState(0);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [modal, setModal] = useState({
-    showModal: false,
-    largeImageURL: '',
-    alt: '',
-  });
+  const [showModal, setShowModal] = useState(false);
   const [empty, setEmpty] = useState(false);
-
-  // Obsługa przesłania formularza wyszukiwania
-  const handleChange = search => {
-    setInputValue(search.target.value);
-  };
-  // Obsługa czyszczenia formularza wyszukiwania
-  const onClickClear = () => {
-    setInputValue('');
-  };
-
-  // Funkcja do pobrania danych
-  const handleSubmit = async event => {
-    event.preventDefault();
-    if (inputValue === '') {
-      alert('Please enter your query');
-      return;
-    }
-    if (query === inputValue) return;
-
-    try {
-      const response = await getSearchImages(inputValue, page);
-      setImages(prevState => [...prevState, ...response.hits]);
-      setLastPage(Math.ceil(response.totalHits / 12));
-      response.totalHits === 0 && setEmpty(true);
-      setQuery(inputValue);
-    } catch (error) {
-      setError(error);
-    } finally {
-      setPage(1);
-    }
-  };
-
-  // Obsługa kliknięcia przycisku "Load more"
-  const handleLoadMore = () => {
-    setPage(prevState => prevState.page + 1); // Zwiększenie numeru strony o 1
-  };
-
-  // Zmiena wartość modala na przeciwną
-  const toggleModal = () => {
-    setModal(prevState => ({ ...prevState, showModal: !prevState.showModal }));
-  };
-
-  // Obsługa otwierania modala
-  const openModal = (largeImageURL, alt) => {
-    setModal(prevState => ({ ...prevState, largeImageURL, alt }));
-    toggleModal();
-  };
+  const [largeImageURL, setLargeImageURL] = useState('');
+  const [alt, setAlt] = useState('');
 
   useEffect(() => {
-    if (page === 0) return;
+    if (search !== '' || page !== 1) {
+      getSearchImages(search, page)
+        .then(resp => resp.json())
+        .then(data => {
+          const newImages = data.hits.filter(
+            newImage =>
+              !images.some(existingImage => existingImage.id === newImage.id)
+          );
+          if (data.hits.length === 0) {
+            setEmpty(true);
+          }
+          setImages(prevImages => [...prevImages, ...newImages]);
+          setTotal(data.total);
+        })
+        .catch(error => setError(error.message))
+        .finally(() => setLoading(false));
+    }
+  }, [search, page]);
 
-    const getSearchImagesByQuery = async searchQuery => {
-      setIsLoading(true);
-      setError(null);
-      setEmpty(false);
+  const handleSubmit = search => {
+    setSearch(search);
+    setImages([]);
+    setPage(1);
+    setTotal(1);
+    setLoading(false);
+    setError(null);
+    setEmpty(false);
+  };
 
-      try {
-        const response = await getSearchImages(searchQuery, page);
-        setImages(prevState => [...prevState, ...response.hits]);
-        setLastPage(Math.ceil(response.totalHits / 12));
-        response.totalHits === 0 && setEmpty(true);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    getSearchImagesByQuery(query);
-  }, [page, query]);
+  const clickLoad = () => {
+    setPage(prevPage => prevPage + 1);
+  };
+
+  const openModal = (largeImageURL, alt) => {
+    setShowModal(true);
+    setLargeImageURL(largeImageURL);
+    setAlt(alt);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setLargeImageURL('');
+    setAlt('');
+  };
 
   return (
     <div>
-      <Searchbar
-        onSubmit={handleSubmit}
-        onChange={handleChange}
-        onClickClear={onClickClear}
-        inputValue={inputValue}
+      <Toaster
+        toastOptions={{
+          duration: 1500,
+        }}
       />
-
+      <Searchbar handleSubmit={handleSubmit} />
       {error && (
         <h2 style={{ textAlign: 'center' }}>Coś poszło nie tak: ({error})!</h2>
       )}
-
+      <ImageGallery toggleModal={openModal} images={images} />
+      {loading && <Loader />}
       {empty && (
         <h2 style={{ textAlign: 'center' }}>
           Przepraszamy. Brak obrazków ... 😭
         </h2>
       )}
-
-      {isLoading && <Loader />}
-      <ImageGallery images={images} onImageClick={openModal} />
-
-      {page < lastPage && !isLoading ? (
-        <Button label="Load more" handleLoadMore={handleLoadMore} />
-      ) : (
-        <div style={{ height: 40 }}></div>
-      )}
-
-      {modal.showModal && (
-        <Modal
-          onClose={toggleModal}
-          largeImageURL={modal.largeImageURL}
-          alt={modal.alt}
-        />
-      )}
+      {total / 12 > page && <Button clickLoad={clickLoad} />}
+      <Modal
+        showModal={showModal}
+        closeModal={closeModal}
+        largeImageURL={largeImageURL}
+        alt={alt}
+      />
     </div>
   );
 };
+
+export default App;

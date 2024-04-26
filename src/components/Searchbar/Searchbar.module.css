@@ -48,7 +48,7 @@
   opacity: 1;
 }
 
-.SearchFormButtonLabel {
+/* .SearchFormButtonLabel {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -58,7 +58,7 @@
   white-space: nowrap;
   clip-path: inset(50%);
   border: 0;
-}
+} */
 
 /* .SearchFormButton-label {
   position: absolute;
