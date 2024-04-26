@@ -39,7 +39,7 @@ const App = () => {
         .catch(error => setError(error.message))
         .finally(() => setLoading(false));
     }
-  }, [search, page]);
+  }, [search, page, images]);
 
   const handleSubmit = search => {
     setSearch(search);
