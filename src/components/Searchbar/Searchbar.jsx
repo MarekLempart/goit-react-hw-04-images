@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import { BiSearch } from 'react-icons/bi';
 import css from './Searchbar.module.css';
 
-const Searchbar = ({ handleSubmit }) => {
+export const Searchbar = ({ handleSubmit }) => {
   const [search, setSearch] = useState('');
 
   const onChangeInput = evt => {
@@ -48,5 +48,3 @@ const Searchbar = ({ handleSubmit }) => {
     </header>
   );
 };
-
-export default Searchbar;

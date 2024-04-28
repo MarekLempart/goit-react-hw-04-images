@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import css from './Modal.module.css';
 
-const Modal = ({ showModal, closeModal, largeImageURL, alt }) => {
+export const Modal = ({ showModal, closeModal, largeImageURL, alt }) => {
   useEffect(() => {
     const handleEscPress = evt => {
       if (evt.keyCode === 27) {
@@ -36,5 +36,3 @@ const Modal = ({ showModal, closeModal, largeImageURL, alt }) => {
     </div>
   );
 };
-
-export default Modal;
