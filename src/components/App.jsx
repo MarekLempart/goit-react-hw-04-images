@@ -32,6 +32,8 @@ export const App = () => {
       try {
         const response = await getSearchImages(query, page);
         const data = await response.json(); // konwersja odpowiedzi na format JSON
+        setTotal(data.totalHits);
+
         const newImages = data.hits.filter(
           newImage =>
             !images.some(existingImage => existingImage.id === newImage.id)
@@ -39,10 +41,10 @@ export const App = () => {
 
         if (newImages.length === 0) {
           setEmpty(true); // Ustawiamy empty na true, jeśli nie ma nowych obrazów
-          setTotal(page); // Ustawiamy total na aktualną stronę, aby zapobiec dalszemu ładowaniu
+          // setTotal(page); // Ustawiamy total na aktualną stronę, aby zapobiec dalszemu ładowaniu
         } else {
-          setImages(prevImages => [...prevImages, ...newImages]);
-          setTotal(data.totalHits);
+          setImages(prevImages => [...prevImages, ...newImages]); // Aktualizacja stanu images
+          // setTotal(data.totalHits);
           setEmpty(false); // Ustawiamy empty na false, jeśli są nowe obrazy
         }
       } catch (error) {
@@ -53,7 +55,7 @@ export const App = () => {
     };
 
     fetchData();
-  }, [query, page, images]);
+  }, [query, page]);
 
   // Obsługa przesłania formularza wyszukiwania
   const handleSubmit = search => {
