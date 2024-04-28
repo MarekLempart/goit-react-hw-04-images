@@ -10,7 +10,6 @@ import { Modal } from './Modal/Modal'; // Moda
 import { Searchbar } from './Searchbar/Searchbar'; // Pasek wyszukiwania
 
 export const App = () => {
-  // const [search, setSearch] = useState(''); // Aktualne zapytanie wyszukiwania
   const [query, setQuery] = useState('');
   const [images, setImages] = useState([]); // Lista obrazków
   const [page, setPage] = useState(1); // Aktualna strona wyników
@@ -34,17 +33,10 @@ export const App = () => {
         const data = await response.json(); // konwersja odpowiedzi na format JSON
         setTotal(data.totalHits);
 
-        const newImages = data.hits.filter(
-          newImage =>
-            !images.some(existingImage => existingImage.id === newImage.id)
-        );
-
-        if (newImages.length === 0) {
+        if (data.hits.length === 0) {
           setEmpty(true); // Ustawiamy empty na true, jeśli nie ma nowych obrazów
-          // setTotal(page); // Ustawiamy total na aktualną stronę, aby zapobiec dalszemu ładowaniu
         } else {
-          setImages(prevImages => [...prevImages, ...newImages]); // Aktualizacja stanu images
-          // setTotal(data.totalHits);
+          setImages(prevImages => [...prevImages, ...data.hits]); // Aktualizacja stanu images
           setEmpty(false); // Ustawiamy empty na false, jeśli są nowe obrazy
         }
       } catch (error) {
@@ -59,8 +51,6 @@ export const App = () => {
 
   // Obsługa przesłania formularza wyszukiwania
   const handleSubmit = search => {
-    // Wyczyszczenie listy obrazków i ustawienie wartości początkowych
-    // setSearch(search);
     setQuery(search);
     setImages([]);
     setPage(1);
