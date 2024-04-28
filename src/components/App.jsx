@@ -55,7 +55,7 @@ export const App = () => {
     };
 
     fetchData();
-  }, [query, page, images]);
+  }, [query, page]);
 
   // Obsługa przesłania formularza wyszukiwania
   const handleSubmit = search => {
