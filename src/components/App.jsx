@@ -53,7 +53,7 @@ export const App = () => {
     };
 
     fetchData();
-  }, [query, page]);
+  }, [query, page, images]);
 
   // Obsługa przesłania formularza wyszukiwania
   const handleSubmit = search => {
